@@ -30,11 +30,11 @@ Entrada | Saida
 `1\n` | `0\n`
 `2 1\n` | `1\n` (operando em duas threads)
 `2 1 0\n` | `1\n` (operando em três threads)
-`3 5 2 7 9 1 0\n | `4\n` (operando em quatro threads)
+`3 5 2 7 9 1 0\n` | `4\n` (operando em quatro threads)
 
 ## Instruções adicionais
 
 1. Vá diretamente ao conjunto de testes para verificar como tratar casos
    limítrofes ou mal-definidos.
-1. Lembre-se de seguir as [instruções de submissão](docs/instrucoes.md).
+1. Lembre-se de seguir as [instruções de submissão](doc/instrucoes.md).
 1. Se desejar, proponha novos casos de teste.
