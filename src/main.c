@@ -15,7 +15,7 @@
 #define N_THREADS_MAX 4
 #define ENTRADA_MAX 50
 unsigned int n_primos;
-pthread_mutex_t trava;
+pthread_mutex_t trava_pool, trava_args;
 
 typedef struct {
     unsigned long N;
@@ -57,22 +57,23 @@ int main() {
     for(int i = 0; i < index; i++) {
         //Procura por um processo livre
         //printf("Verificando processo livre\n");
-        pthread_mutex_lock(&trava);
         while(1) {
+            pthread_mutex_lock(&trava_pool);
             if(thread_ativa[thread_index] == 0)
             {
                 //printf("Processo livre encontrado! %d\n", thread_index);
                 thread_ativa[thread_index] = 1;
+                pthread_mutex_lock(&trava_args);
                 args.N = entrada[i];
                 args.THREAD = &(thread_ativa[thread_index]);
+                pthread_mutex_unlock(&trava_args);
                 pthread_create(&(threads[thread_index]), NULL, calculaPrimoThread, &args);
+                pthread_mutex_unlock(&trava_pool);
                 break;
             }
-            else {
-                thread_index = (thread_index+1)%N_THREADS_MAX;
-            }
+            pthread_mutex_unlock(&trava_pool);
+            thread_index = (thread_index+1)%N_THREADS_MAX;
         }
-        pthread_mutex_unlock(&trava);
 
     }
 
@@ -98,15 +99,21 @@ int ehPrimo(unsigned long x) {
 }
 
 void *calculaPrimoThread(void *arg) {
-    unsigned long N = ((thread_args *) arg)->N;
-    uint8_t *end_thread = ((thread_args *) arg)->THREAD;
+
+    pthread_mutex_lock(&trava_args);
+    thread_args arg_local = * (thread_args *)arg;
+    pthread_mutex_unlock(&trava_args);
+
+    unsigned long N = arg_local.N;
+    uint8_t *end_thread = arg_local.THREAD;
+
     //printf("Calculando se %lu eh primo (%p)\n", N, end_thread);
     uint8_t N_eh_primo = ehPrimo(N);
-    pthread_mutex_lock(&trava);
+    pthread_mutex_lock(&trava_pool);
     if(N_eh_primo) {
         n_primos++;
     }
     *end_thread = 0;
-    pthread_mutex_unlock(&trava);
+    pthread_mutex_unlock(&trava_pool);
     return NULL;
 }
