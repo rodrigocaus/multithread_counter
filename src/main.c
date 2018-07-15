@@ -3,7 +3,6 @@
  * Este programa recebera uma serie números inteiros positivos em sua
  * entrada. Ao receber um caractere fim de linha ('\n'), deve imprimir na tela a
  * quantidade de números primos que recebeu e, apos, encerrar.
- * Foi empregada a tecnica de Threadpool.
  */
 
 #include <stdio.h>
