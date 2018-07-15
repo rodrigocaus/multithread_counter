@@ -3,7 +3,7 @@
  * Este programa recebera uma serie números inteiros positivos em sua
  * entrada. Ao receber um caractere fim de linha ('\n'), deve imprimir na tela a
  * quantidade de números primos que recebeu e, apos, encerrar.
- * Foi empregada a tecnica de Threadpool
+ * Foi empregada a tecnica de Threadpool.
  */
 
 #include <stdio.h>
@@ -49,10 +49,10 @@ int main() {
     pthread_t threads[N_THREADS_MAX];
     uint8_t thread_ativa[N_THREADS_MAX];
     for(int i = 0; i < N_THREADS_MAX; i++)
-        thread_ativa[i] = 0;
+        threads[i] = thread_ativa[i] = 0;
 
     unsigned int thread_index = 0;
-    thread_args args;
+    thread_args *args;
 
     for(int i = 0; i < index; i++) {
         //Procura por um processo livre
@@ -64,10 +64,11 @@ int main() {
                 //printf("Processo livre encontrado! %d\n", thread_index);
                 thread_ativa[thread_index] = 1;
                 pthread_mutex_lock(&trava_args);
-                args.N = entrada[i];
-                args.THREAD = &(thread_ativa[thread_index]);
+                args = malloc(sizeof(thread_args));
+                args->N = entrada[i];
+                args->THREAD = &(thread_ativa[thread_index]);
                 pthread_mutex_unlock(&trava_args);
-                pthread_create(&(threads[thread_index]), NULL, calculaPrimoThread, &args);
+                pthread_create(&(threads[thread_index]), NULL, calculaPrimoThread, args);
                 pthread_mutex_unlock(&trava_pool);
                 break;
             }
@@ -102,6 +103,7 @@ void *calculaPrimoThread(void *arg) {
 
     pthread_mutex_lock(&trava_args);
     thread_args arg_local = * (thread_args *)arg;
+    free(arg);
     pthread_mutex_unlock(&trava_args);
 
     unsigned long N = arg_local.N;
